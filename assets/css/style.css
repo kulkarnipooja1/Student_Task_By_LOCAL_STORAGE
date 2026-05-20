@@ -1,0 +1,7 @@
+body {
+ background-color: #ededed; 
+}
+
+.removeIcon, .deleteIcon{
+ cursor : pointer;
+ }
