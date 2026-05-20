@@ -8,11 +8,38 @@ const lnameControl = document.getElementById('lname');
 const emailControl = document.getElementById('email');
 const contactControl = document.getElementById('contact');
 
+//DB  
+/*
+let stdArr = [
+  {
+    fname: 'Jhon',
+    lname: 'Doe',
+    email: 'jd@gmail.com',
+    contact: '1234567890',
+    stdId: '6edf782c-2bad-4fc8-b013-5468a45891fb'
+  },
+  {
+    fname: 'May',
+    lname: 'Doe',
+    email: 'may@gmail.com',
+    contact: '7895642310',
+    stdId: '6789789789c-2bad-4fc8-b013-5468a45891fb'
+  },
+  {
+    fname: 'June',
+    lname: 'Doe',
+    email: 'june@gmail.com',
+    contact: '9876542310',
+    stdId: 'ee688e59-7c9e-40dd-9b92-2b69db8f9db7'
+  }
+];
+*/
 
 let stdArr = [];
 
 if(localStorage.getItem('stdArr')){
 	stdArr = JSON.parse(localStorage.getItem("stdArr"))
+	// jab bhi hum data get ya set karte hai local-storage me "" me hona chahiye.
 }
 
 const uuid = () => {
@@ -28,8 +55,10 @@ const uuid = () => {
 
 //################ 1. Templating (Read Student) #############################
 function createTrs(arr) {
-  let result = '';  
+  let result = '';  // undefind
   arr.forEach((std, i) => {
+	  //cl(std);
+	  //create, update & delete ke liye hame "id" chahiye hogi.
     result += `
       <tr id="${std.stdId}"> 
         <td>${i + 1}</td>
@@ -54,10 +83,15 @@ function createTrs(arr) {
       </tr>
     `;
   });
-    
+      // Explain  onclick="onStdEdit(this)" --> "this" usake closest parent ko represent karega here icon
+      
+	 // hamare pure application me tr 2 jagah pe create ho rahe hai, vaha pe hame function add karna hai.(event bind kiya function ko call kiya)
+
+	  
   stdContainer.innerHTML = result;
 }
-     createTrs(stdArr);
+
+createTrs(stdArr);
 
 
 //################ 3. Remove Student #######################
@@ -84,7 +118,7 @@ function onStdRemove(ele) {
        ele.closest('tr').remove();
 	
 	
-	// 5. After Removing student we have to update serial number.
+
     let allTrs = [...document.querySelectorAll('#stdContainer tr')]
     allTrs.forEach((tr,i) => {
       tr.firstElementChild.innerText = i + 1 
@@ -127,6 +161,8 @@ function onStdSubmit(eve) {
 
     stdForm.reset();
 
+    
+ 
     let tr = document.createElement('tr');
     tr.id = NEW_STD.stdId;
     tr.innerHTML = `
@@ -149,8 +185,7 @@ onclick="onStdRemove(this)"
             role="button"
             class="fa-solid fa-trash fa-2x text-danger">
           </i>
-        </td>`
-
+        </td>  `
     stdContainer.append(tr);
 
     snackBar(` The new student ${NEW_STD.fname} ${NEW_STD.lname} has been added successfully.`, 'success');
@@ -162,20 +197,24 @@ onclick="onStdRemove(this)"
 function onStdEdit (ele) {
 	// GET ID
   let EDIT_ID = ele.closest('tr').id 
-     localStorage.setItem('EDIT_ID', EDIT_ID); 
-  
+     localStorage.setItem('EDIT_ID', EDIT_ID); // edit-id ko LS me set karana hai.
+      // cl(EDIT_ID);
+	
     // FIND OBJECT	
   let EDIT_OBJ = stdArr.find(std => {
     return std.stdId === EDIT_ID
   })
+       // cl(EDIT_OBJ);
 	
     // PATCH DATA	
+	 
   fnameControl.value = EDIT_OBJ.fname
   lnameControl.value = EDIT_OBJ.lname
   emailControl.value = EDIT_OBJ.email
   contactControl.value = EDIT_OBJ.contact
 
-   
+
+     
 	 // HIDE ADD BTN & SHOW UPDATE BUTTON.
   addStdBtn.classList.add('d-none')
   updateStdBtn.classList.remove('d-none')
@@ -186,8 +225,8 @@ function onStdUpdate() {
   // update_ID
 
   let UPDATE_ID = localStorage.getItem("EDIT_ID") 
+// 1. GET UPDATED OBJ FROM form.
 
-  // 1. GET UPDATED OBJ FROM form.
   let UPDATE_OBJ = {
     fname: fnameControl.value,
     lname: lnameControl.value,
@@ -199,6 +238,7 @@ function onStdUpdate() {
   stdForm.reset();
   
   // 2. REPLACE/UPDATE IN ARRAY
+  // update in stdArr
   let getIndex = stdArr.findIndex(std => std.stdId === UPDATE_ID);
   stdArr[getIndex] = UPDATE_OBJ;
 
@@ -206,6 +246,7 @@ function onStdUpdate() {
      localStorage.setItem("stdArr", JSON.stringify(stdArr));
 	 
   // 4. UPDATE IN UI.
+ 
   let tr = document.getElementById(UPDATE_ID).children
   tr[1].innerText = `${UPDATE_OBJ.fname}`
   tr[2].innerText = `${UPDATE_OBJ.lname}`
